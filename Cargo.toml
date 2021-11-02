@@ -1,0 +1,20 @@
+[package]
+name = "tomba"
+description = "tomba: A Rust library for tomba"
+version = "0.1.0"
+authors = ["Mohamed Ben <b.mohamed@tomba.io>"]
+edition = "2018"
+license = "Apache-2.0"
+readme = "README.md"
+categories = ["email"]
+keywords = ["email", "email-finder", "tomba", "email-verifier", "email-source", "email-validation"]
+exclude = [".gitignore", ".cargo/config"]
+
+
+[dependencies]
+reqwest = "0.9"
+serde = "1.0.130"
+serde_json = "1.0.68"
+[profile.release]
+overflow-checks = true
+lto = true
