@@ -9,6 +9,8 @@ readme = "README.md"
 categories = ["email"]
 keywords = ["email", "email-finder", "tomba", "email-verifier", "email-source", "email-validation"]
 exclude = [".gitignore", ".cargo/config"]
+homepage = "https://tomba.io/"
+repository = "https://github.com/tomba-io/rust"
 
 
 [dependencies]
