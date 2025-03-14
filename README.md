@@ -1,4 +1,4 @@
-# [<img src="https://app.tomba.io/tomba/f250de39816043cfc8f5578fa078a79e.svg" alt="Tomba" width="25"/>](https://tomba.io/) Tomba Email Finder Rust Client Library
+# [<img src="https://tomba.io/logo.svg" alt="Tomba" width="25"/>](https://tomba.io/) Tomba Email Finder Rust Client Library
 
 This is the official Rust client library for the [Tomba.io](https://tomba.io) Email Finder API,
 allowing you to:
