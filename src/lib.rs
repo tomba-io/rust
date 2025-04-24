@@ -20,8 +20,9 @@
 //! - [Domain Search](https://tomba.io/domain-search) are based on the website You give one domain name and it returns all the email addresses found on the internet.
 //! - [Email Finder](https://tomba.io/email-finder) generates or retrieves the most likely email address from a domain name, a first name and a last name.
 //! - [Email Verifier](https://tomba.io/email-verifier) checks the deliverability of a given email address, verifies if it has been found in our database, and returns their sources.
-//! - [Email Sources](https://developer.tomba.io/#email-sources) Find email address source somewhere on the web .
-//! - [Company Autocomplete](https://developer.tomba.io/#autocomplete) is an API that lets you auto-complete company names and retrieve logo and domain information.
+//! - [Email Enrichment.](https://tomba.io/enrichment) Locate and include data in your emails.
+//! - [Author Finder.](https://tomba.io/author-finder) Instantly discover the email addresses of article authors.
+//! - [LinkedIn Finder.](https://tomba.io/linkedin-finder) Instantly discover the email addresses of Linkedin URLs.
 //!
 //! ## Features
 //!
