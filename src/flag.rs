@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
+use serde_json::Value;
+
 use crate::error::TombaError;
 use crate::tomba::{Tomba, TombaResponse};
 
 impl Tomba {
-    /// Return the last 1 000 API requests made in the past 3 months.
+    /// List all flags.
     ///
-    /// See <https://developer.tomba.io/#logs>
-    pub fn logs(
+    /// See <https://developer.tomba.io/#list-all-flags>
+    pub fn list_flags(
         &self,
         page: Option<u32>,
         limit: Option<u32>,
@@ -19,6 +21,16 @@ impl Tomba {
         if let Some(v) = limit {
             params.insert("limit".into(), v.to_string());
         }
-        self.call("GET", "logs", &params)
+        self.call("GET", "flags", &params)
+    }
+
+    /// Create a new flag.
+    ///
+    /// See <https://developer.tomba.io/#create-a-flag>
+    pub fn create_flag(
+        &self,
+        body: &Value,
+    ) -> Result<TombaResponse, TombaError> {
+        self.call_json("POST", "flags", body)
     }
 }

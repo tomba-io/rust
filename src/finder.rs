@@ -1,80 +1,82 @@
-//   Copyright 2021 Tomba technology web service LLC
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+use std::collections::HashMap;
 
-//! Tomba Email Finder data structures.
+use crate::error::TombaError;
+use crate::tomba::{Tomba, TombaResponse};
 
-use serde::{Deserialize, Serialize};
+impl Tomba {
+    /// Find the most likely email address for a person at a company.
+    ///
+    /// See <https://developer.tomba.io/#email-finder>
+    pub fn email_finder(
+        &self,
+        domain: &str,
+        first_name: &str,
+        last_name: &str,
+        webhook_url: Option<&str>,
+    ) -> Result<TombaResponse, TombaError> {
+        let mut params = HashMap::new();
+        params.insert("domain".into(), domain.into());
+        params.insert("first_name".into(), first_name.into());
+        params.insert("last_name".into(), last_name.into());
+        if let Some(v) = webhook_url {
+            params.insert("webhook_url".into(), v.into());
+        }
+        self.call("GET", "email-finder", &params)
+    }
 
-#[derive(Serialize, Deserialize)]
-pub struct Finder {
-    #[serde(rename = "data")]
-    pub data: FinderData,
-}
+    /// Find the email address of the author of a blog post.
+    ///
+    /// See <https://developer.tomba.io/#author-finder>
+    pub fn author_finder(
+        &self,
+        url: &str,
+        webhook_url: Option<&str>,
+    ) -> Result<TombaResponse, TombaError> {
+        let mut params = HashMap::new();
+        params.insert("url".into(), url.into());
+        if let Some(v) = webhook_url {
+            params.insert("webhook_url".into(), v.into());
+        }
+        self.call("GET", "author-finder", &params)
+    }
 
-#[derive(Serialize, Deserialize)]
-pub struct FinderData {
-    #[serde(rename = "email")]
-    pub email: String,
+    /// Find the email address from a LinkedIn URL.
+    ///
+    /// See <https://developer.tomba.io/#linkedin-finder>
+    pub fn linkedin_finder(
+        &self,
+        url: &str,
+        enrich_mobile: Option<bool>,
+        full: Option<bool>,
+        webhook_url: Option<&str>,
+    ) -> Result<TombaResponse, TombaError> {
+        let mut params = HashMap::new();
+        params.insert("url".into(), url.into());
+        if let Some(v) = enrich_mobile {
+            params.insert("enrich_mobile".into(), v.to_string());
+        }
+        if let Some(v) = full {
+            params.insert("full".into(), v.to_string());
+        }
+        if let Some(v) = webhook_url {
+            params.insert("webhook_url".into(), v.into());
+        }
+        self.call("GET", "linkedin", &params)
+    }
 
-    #[serde(rename = "first_name")]
-    pub first_name: String,
-
-    #[serde(rename = "last_name")]
-    pub last_name: String,
-
-    #[serde(rename = "full_name")]
-    pub full_name: String,
-
-    #[serde(rename = "country")]
-    pub country: String,
-
-    #[serde(rename = "position")]
-    pub position: Option<serde_json::Value>,
-
-    #[serde(rename = "twitter")]
-    pub twitter: Option<serde_json::Value>,
-
-    #[serde(rename = "linkedin")]
-    pub linkedin: String,
-
-    #[serde(rename = "phone_number")]
-    pub phone_number: Option<serde_json::Value>,
-
-    #[serde(rename = "accept_all")]
-    pub accept_all: Option<serde_json::Value>,
-
-    #[serde(rename = "website_url")]
-    pub website_url: String,
-
-    #[serde(rename = "company")]
-    pub company: String,
-
-    #[serde(rename = "score")]
-    pub score: i64,
-
-    #[serde(rename = "verification")]
-    pub verification: FinderVerification,
-
-    #[serde(rename = "sources")]
-    pub sources: Vec<Option<serde_json::Value>>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct FinderVerification {
-    #[serde(rename = "date")]
-    pub date: Option<serde_json::Value>,
-
-    #[serde(rename = "status")]
-    pub status: Option<serde_json::Value>,
+    /// Enrich a person by email address.
+    ///
+    /// See <https://developer.tomba.io/#email-enrichment>
+    pub fn email_enrichment(
+        &self,
+        email: &str,
+        webhook_url: Option<&str>,
+    ) -> Result<TombaResponse, TombaError> {
+        let mut params = HashMap::new();
+        params.insert("email".into(), email.into());
+        if let Some(v) = webhook_url {
+            params.insert("webhook_url".into(), v.into());
+        }
+        self.call("GET", "enrichment", &params)
+    }
 }

@@ -1,439 +1,260 @@
-//   Copyright 2021 Tomba technology web service LLC
+// Copyright 2021 Tomba technology web service LLC
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//       http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-use crate::{
-    Account, Autocomplete, Count, Finder, Logs, Search, Sources, Status,
-    Usage, Verifier,DEFAULT_BASE_URL, ACCOUNT_PATH, AUTOCOMPLETE_PATH, COUNT_PATH, FINDER_PATH,
-    LOGS_PATH, SEARCH_PATH, SOURCES_PATH, STATUS_PATH, USAGE_PATH,
-    VERIFIER_PATH,
-};
-use reqwest;
-use serde_json::{json, Value};
+use std::collections::HashMap;
 
-/// TombaConfig structure configuration.
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+use crate::error::TombaError;
+use crate::DEFAULT_BASE_URL;
+
+const SDK_VERSION: &str = "tomba:rust:v1.0.0";
+
+/// Rate-limit information extracted from response headers.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RateLimit {
+    /// Maximum requests allowed per second.
+    pub x_second_rate_limit: Option<String>,
+    /// Maximum requests allowed per minute.
+    pub x_minute_rate_limit: Option<String>,
+    /// Maximum requests allowed per day.
+    pub x_daily_rate_limit: Option<String>,
+    /// Remaining requests in the current minute window.
+    pub x_minute_request_left: Option<String>,
+    /// Remaining requests in the current daily window.
+    pub x_daily_request_left: Option<String>,
+    /// Seconds until the per-minute limit resets.
+    pub x_minute_reset_seconds: Option<String>,
+    /// Seconds until the daily limit resets.
+    pub x_daily_reset_seconds: Option<String>,
+    /// Standard `Retry-After` header value (seconds).
+    pub retry_after: Option<String>,
+    /// Standard `RateLimit-Policy` header value.
+    pub rate_limit_policy: Option<String>,
+    /// Standard `RateLimit` header value.
+    pub rate_limit: Option<String>,
+}
+
+/// A response from the Tomba API containing the parsed JSON body
+/// and rate-limit metadata from the response headers.
+#[derive(Debug, Clone)]
+pub struct TombaResponse {
+    /// The parsed JSON response body.
+    pub data: Value,
+    /// Rate-limit information extracted from response headers.
+    pub rate_limit: RateLimit,
+}
+
+/// Parse rate-limit headers from an HTTP response.
+pub fn parse_rate_limit(headers: &reqwest::header::HeaderMap) -> RateLimit {
+    let get = |name: &str| -> Option<String> {
+        headers
+            .get(name)
+            .and_then(|v| v.to_str().ok())
+            .map(String::from)
+    };
+    RateLimit {
+        x_second_rate_limit: get("x-second-rate-limit"),
+        x_minute_rate_limit: get("x-minute-rate-limit"),
+        x_daily_rate_limit: get("x-daily-rate-limit"),
+        x_minute_request_left: get("x-minute-request-left"),
+        x_daily_request_left: get("x-daily-request-left"),
+        x_minute_reset_seconds: get("x-minute-reset-seconds"),
+        x_daily_reset_seconds: get("x-daily-reset-seconds"),
+        retry_after: get("retry-after"),
+        rate_limit_policy: get("ratelimit-policy"),
+        rate_limit: get("ratelimit"),
+    }
+}
+
+/// Configuration for the Tomba client.
 pub struct TombaConfig {
-    /// Tomba api key.
+    /// Tomba API key (starts with `ta_`).
     pub key: String,
-
-    /// Tomba secret key.
+    /// Tomba secret key (starts with `ts_`).
     pub secret: String,
 }
 
-/// Tomba requests context structure.
+/// The Tomba API client.
+///
+/// Create an instance with [`Tomba::init`], then call the endpoint
+/// methods such as [`Tomba::account`], [`Tomba::domain_search`], etc.
 pub struct Tomba {
     url: String,
     key: String,
     secret: String,
+    client: Client,
 }
 
-/// Tomba Email finder
 impl Tomba {
-    /// Tomba Construct.
+    /// Create a new Tomba client.
     ///
     /// # Examples
     ///
-    /// ```
-    /// use tomba::TombaConfig;
+    /// ```no_run
+    /// use tomba::{Tomba, TombaConfig};
     ///
-    /// let config = TombaConfig { key: "my key".to_string(), secret: "my secret".to_string(),  };
+    /// let config = TombaConfig {
+    ///     key: "ta_xxxx".to_string(),
+    ///     secret: "ts_xxxx".to_string(),
+    /// };
+    /// let mut tomba = Tomba::init(config).expect("should construct");
     /// ```
-    pub fn init(
-        _config: TombaConfig,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn init(config: TombaConfig) -> Result<Self, TombaError> {
+        let client = Client::builder()
+            .timeout(std::time::Duration::from_secs(120))
+            .build()?;
         Ok(Self {
             url: DEFAULT_BASE_URL.to_owned(),
-            key: _config.key,
-            secret: _config.secret,
+            key: config.key,
+            secret: config.secret,
+            client,
         })
     }
 
-    /// Tomba http Client
+    // ------------------------------------------------------------------
+    // HTTP helpers
+    // ------------------------------------------------------------------
+
+    /// Send a request with query parameters (GET / DELETE).
     ///
-    /// # Arguments
-    ///
-    /// * `_path` - A string specific path.
+    /// * `method` -- `"GET"` or `"DELETE"`
+    /// * `path`   -- path relative to the base URL, e.g. `"me"`
+    /// * `params` -- query-string key/value pairs
     pub fn call(
-        &mut self,
-        _path: String,
-    ) -> Result<Value, Box<dyn std::error::Error>> {
-        let client = reqwest::Client::builder().build()?;
-        // Perform the actual execution of the network request
-        let misses: Vec<&str> = vec![];
-        let url = format!("{base}{_path}", _path = _path, base = self.url);
+        &self,
+        method: &str,
+        path: &str,
+        params: &HashMap<String, String>,
+    ) -> Result<TombaResponse, TombaError> {
+        let url = format!("{}{}", self.url, path);
 
-        let res = client
-            .get(&url)
-            .header("X-Tomba-Key", &self.key)
-            .header("X-Tomba-Secret", &self.secret)
-            .header("x-Sdk-Version", "tomba:rust:v1.0.0")
-            .json(&json!(misses))
-            .send()?;
-
-        // Check request status
-        if res.status() != 200 {
-            // Throw error
+        let builder = match method {
+            "DELETE" => self.client.delete(&url),
+            _ => self.client.get(&url),
         };
 
-        // Acquire response
-        let raw_resp = res.error_for_status()?.text()?;
+        let resp = builder
+            .header("X-Tomba-Key", &self.key)
+            .header("X-Tomba-Secret", &self.secret)
+            .header("Content-Type", "application/json")
+            .header("x-Sdk-Version", SDK_VERSION)
+            .query(params)
+            .send()?;
 
-        // Parse the response
-        let resp: Value = serde_json::from_str(&raw_resp)?;
-
-        Ok(resp)
+        self.handle_response(resp)
     }
 
-    /// Returns information about the current account.
+    /// Send a request with a JSON body (POST / PUT).
     ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.account().expect("should do account");
-    ///
-    /// // println!("account email {}", res.data.email)
-    /// 
-    /// // account email b.mohamed@tomba.io
-    /// ```
-    pub fn account(&mut self) -> Result<Account, Box<dyn std::error::Error>> {
-        let call =
-            self.call(ACCOUNT_PATH.to_string()).expect("should do call");
-        let details: Account = serde_json::from_str(&call.to_string())?;
-        Ok(details)
+    /// * `method` -- `"POST"` or `"PUT"`
+    /// * `path`   -- path relative to the base URL
+    /// * `body`   -- JSON value to send as the request body
+    pub fn call_json(
+        &self,
+        method: &str,
+        path: &str,
+        body: &Value,
+    ) -> Result<TombaResponse, TombaError> {
+        let url = format!("{}{}", self.url, path);
+
+        let builder = match method {
+            "PUT" => self.client.put(&url),
+            _ => self.client.post(&url),
+        };
+
+        let resp = builder
+            .header("X-Tomba-Key", &self.key)
+            .header("X-Tomba-Secret", &self.secret)
+            .header("Content-Type", "application/json")
+            .header("x-Sdk-Version", SDK_VERSION)
+            .json(body)
+            .send()?;
+
+        self.handle_response(resp)
     }
 
-    /// Search emails are based on the website You give one domain name and it returns all the email addresses found on the internet.
-    ///
-    /// # Arguments
-    ///
-    /// * `_domain` - A string domain Domain name from which you want to find the email addresses. For example, "stripe.com".
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.domain_search("tomba.io".to_string()).expect("should do domain_search ");
-    /// 
-    /// // println!("website country {:?}", res.data.organization.location.country);
-    /// 
-    /// // website country Some("US")
-    /// ```
-    pub fn domain_search(
-        &mut self,
-        _domain: String,
-    ) -> Result<Search, Box<dyn std::error::Error>> {
-        let url = format!("{p}{d}", p = SEARCH_PATH, d = _domain);
-        let call = self.call(url).expect("should do call");
-        let details: Search = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
+    /// Interpret the HTTP response, returning the parsed JSON body
+    /// along with rate-limit headers, or a [`TombaError`].
+    fn handle_response(
+        &self,
+        resp: reqwest::blocking::Response,
+    ) -> Result<TombaResponse, TombaError> {
+        let status = resp.status().as_u16();
+        let rate_limit = parse_rate_limit(resp.headers());
+        let body = resp.text()?;
 
-    /// Returns total email addresses we have for one domain.
-    ///
-    /// # Arguments
-    ///
-    /// * `_domain` - A string domain name from which you want to find the email addresses. For example, "stripe.com".
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.count("tomba.io".to_string()).expect("should count");
-    /// 
-    /// // println!("total email on website {}", res.data.total)
-    /// 
-    /// // total email on website 14
-    /// ```
-    pub fn count(
-        &mut self,
-        _domain: String,
-    ) -> Result<Count, Box<dyn std::error::Error>> {
-        let url = format!("{p}?domain={d}", p = COUNT_PATH, d = _domain);
-        let call = self.call(url).expect("should do call");
-        let details: Count = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
+        if status >= 400 {
+            let message = serde_json::from_str::<Value>(&body)
+                .ok()
+                .and_then(|v| {
+                    v.get("errors")
+                        .and_then(|e| {
+                            e.get(0)
+                                .and_then(|e0| e0.get("message"))
+                                .and_then(|m| m.as_str())
+                                .map(String::from)
+                        })
+                        .or_else(|| {
+                            v.get("message")
+                                .and_then(|m| m.as_str())
+                                .map(String::from)
+                        })
+                })
+                .unwrap_or(body);
 
-    /// Returns domain status if is webmail or disposable.
-    ///
-    /// # Arguments
-    ///
-    /// * `_domain` - A string domain name from which you want to check. For example, "gmail.com".
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.status("gmail.com".to_string()).expect("should do status");
-    /// 
-    /// // println!("the website gmail.com is webmail {}", res.webmail)
-    /// 
-    /// // the website gmail.com is webmail true
-    /// ```
-    pub fn status(
-        &mut self,
-        _domain: String,
-    ) -> Result<Status, Box<dyn std::error::Error>> {
-        let url = format!("{p}?domain={d}", p = STATUS_PATH, d = _domain);
-        let call = self.call(url).expect("should do call");
-        let details: Status = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
+            return Err(TombaError::Api {
+                message,
+                code: status,
+            });
+        }
 
-    /// Company Autocomplete is an API that lets you auto-complete company names and retrieve logo and domain information.
-    ///
-    /// # Arguments
-    ///
-    /// * `_search` - A string name company or website.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.autocomplete("tomba.io".to_string()).expect("should do autocomplete");
-    /// 
-    /// // println!("website name {:?} and {:?} emails", res.data[0].name, res.data[0].email_count)
-    /// 
-    /// // website name Some("Tomba") and Some(14) emails
-    /// ```
-    pub fn autocomplete(
-        &mut self,
-        _search: String,
-    ) -> Result<Autocomplete, Box<dyn std::error::Error>> {
-        let url = format!("{p}?query={s}", p = AUTOCOMPLETE_PATH, s = _search);
-        let call = self.call(url).expect("should do call");
-        let details: Autocomplete = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
-
-    /// Generates or retrieves the most likely email address from a domain name, a first name and a last name.
-    ///
-    /// # Arguments
-    ///
-    /// * `_domain` - A string domain name of the company, used for emails. For example, "tomba.com".
-    /// * `_fname` - A string The person's first name. It doesn't need to be in lowercase.
-    /// * `_lname` - A string The person's last name. It doesn't need to be in lowercase.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.email_finder("zapier.com".to_string(), "simon".to_string(), "charette".to_string()).expect("should do email finder");
-    /// 
-    /// // println!("Email Finder email {}", res.data.email)
-    /// 
-    /// // Email Finder email simon.charette@zapier.co
-    /// ```
-    pub fn email_finder(
-        &mut self,
-        _domain: String,
-        _fname: String,
-        _lname: String,
-    ) -> Result<Finder, Box<dyn std::error::Error>> {
-        let url = format!(
-            "{p}{s}?first_name={f}&last_name={l}",
-            p = FINDER_PATH,
-            s = _domain,
-            f = _fname,
-            l = _lname
-        );
-        let call = self.call(url).expect("should do call");
-        let details: Finder = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
-
-    /// Verify the deliverability of an email address.
-    ///
-    /// # Arguments
-    ///
-    /// * `_email` - A string email address you want to verify.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.email_verifier("b.mohamed@tomba.io".to_string()).expect("should do verify");
-    /// 
-    /// // println!("Email status {}", res.data.email.status)
-    /// 
-    /// // Email status valid
-    /// ```
-    pub fn email_verifier(
-        &mut self,
-        _email: String,
-    ) -> Result<Verifier, Box<dyn std::error::Error>> {
-        let url = format!("{p}{d}", p = VERIFIER_PATH, d = _email);
-        let call = self.call(url).expect("should do call");
-        let details: Verifier = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
-
-    /// Find email address source somewhere on the web.
-    ///
-    /// # Arguments
-    ///
-    /// * `_email` - A string email address you want to find sources.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.email_sources("b.mohamed@tomba.io".to_string()).expect("should find sources");
-    /// 
-    /// // println!("first source url {} extracted on {}", res.data[0].uri, res.data[0].extracted_on)
-    /// 
-    /// // first source url https://github.com/tomba-io/generic-emails/blob/084fc1a63d3cdaf9a34f255bedc2baea49a8e8b9/src/lib/validation/hash.ts extracted on 2021-02-08T20:09:54+01:0
-    /// ```
-    pub fn email_sources(
-        &mut self,
-        _email: String,
-    ) -> Result<Sources, Box<dyn std::error::Error>> {
-        let url = format!("{p}{d}", p = SOURCES_PATH, d = _email);
-        let call = self.call(url).expect("should do call");
-        let details: Sources = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
-
-    /// Check your monthly requests.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.usage().expect("should do usage");
-    /// 
-    /// // println!("total usage on Domain search {}", res.total.domain)
-    /// 
-    /// // total usage on Domain search 2615
-    /// ```
-    pub fn usage(&mut self) -> Result<Usage, Box<dyn std::error::Error>> {
-        let call = self.call(USAGE_PATH.to_string()).expect("should do call");
-        let details: Usage = serde_json::from_str(&call.to_string())?;
-        Ok(details)
-    }
-
-    /// Returns a your last 1,000 requests you made during the last 3 months.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tomba::{Tomba, TombaConfig};
-    /// 
-    /// let config = TombaConfig {
-    ///    key: "ta_xxxx".to_string(),
-    ///    secret: "ts_xxxx".to_string(),
-    /// };
-    /// 
-    /// let mut tomba = Tomba::init(config).expect("should construct");
-    /// 
-    /// let res = tomba.logs().expect("should do logs");
-    /// 
-    /// // println!("Requests to {} from country {}", res.data[0].uri, res.data[0].country)
-    /// // Requests to https://api.tomba/v1/domain-search/tomba.io from country DZ
-    /// ```
-    pub fn logs(&mut self) -> Result<Logs, Box<dyn std::error::Error>> {
-        let call = self.call(LOGS_PATH.to_string()).expect("should do call");
-        let details: Logs = serde_json::from_str(&call.to_string())?;
-        Ok(details)
+        let parsed: Value = serde_json::from_str(&body)?;
+        Ok(TombaResponse {
+            data: parsed,
+            rate_limit,
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use TombaConfig;
 
     #[test]
-    fn tomba_config() {
+    fn test_tomba_config() {
         let config = TombaConfig {
-            key: "key".to_string(),
-            secret: "secret".to_string(),
+            key: "ta_key".to_string(),
+            secret: "ts_secret".to_string(),
         };
 
-        assert_eq!(config.key, "key");
-        assert_eq!(config.secret, "secret");
+        assert_eq!(config.key, "ta_key");
+        assert_eq!(config.secret, "ts_secret");
+    }
+
+    #[test]
+    fn test_tomba_init() {
+        let config = TombaConfig {
+            key: "ta_key".to_string(),
+            secret: "ts_secret".to_string(),
+        };
+        let tomba = Tomba::init(config).expect("should construct");
+
+        assert_eq!(tomba.key, "ta_key");
+        assert_eq!(tomba.secret, "ts_secret");
+        assert_eq!(tomba.url, DEFAULT_BASE_URL);
     }
 }

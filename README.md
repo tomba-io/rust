@@ -1,121 +1,546 @@
-# [<img src="https://tomba.io/logo.svg" alt="Tomba" width="25"/>](https://tomba.io/) Tomba Email Finder Rust Client Library
+# [<img src="https://tomba.io/logo.svg" alt="Tomba" width="25"/>](https://tomba.io/) Tomba Rust SDK
 
-This is the official Rust client library for the [Tomba.io](https://tomba.io) Email Finder API,
-allowing you to:
+> The #1 Rated Email Intelligence Platform — Find professional emails with unmatched accuracy.
 
-- [Domain Search](https://tomba.io/domain-search) (Search emails are based on the website You give one domain name and it returns all the email addresses found on the internet.)
-- [Email Finder](https://tomba.io/email-finder) (This API endpoint generates or retrieves the most likely email address from a domain name, a first name and a last name..)
-- [Email Verifier](https://tomba.io/email-verifier) (checks the deliverability of a given email address, verifies if it has been found in our database, and returns their sources.)
-- [Email Enrichment.](https://tomba.io/enrichment) (Locate and include data in your emails.)
-- [Author Finder.](https://tomba.io/author-finder) (Instantly discover the email addresses of article authors.)
-- [LinkedIn Finder.](https://tomba.io/linkedin-finder) (Instantly discover the email addresses of Linkedin URLs.)
+[![Crates.io](https://img.shields.io/crates/v/tomba.svg)](https://crates.io/crates/tomba)
+[![Documentation](https://docs.rs/tomba/badge.svg)](https://docs.rs/tomba)
+[![License](https://img.shields.io/crates/l/tomba.svg)](LICENSE)
 
-## Features
+This is the official Rust client library for the [Tomba.io](https://tomba.io) Email Finder API, providing access to all Tomba services including domain search, email finder, email verifier, enrichment, phone lookup, leads management, bulk operations, and more.
 
-- Collect publicly available emails online (Html, execute JavaScript,files,).
-- No duplicate email No duplicate domain .
-- No webmail like Gmail,Outlook and the others.
-- We detect 15 type of hashes and remove them.
-- No disposable and temporary email address.
+## About Tomba
+
+[Tomba.io](https://tomba.io) is the #1 rated email intelligence platform, trusted by **150,000+ sales teams** worldwide.
+
+- **Best Email Finder** — 98% accuracy, ranked #1 in independent benchmarks
+- **Best Email Verification** — Real-time SMTP verification with catch-all detection
+- **Best Phone Finder** — Direct dial numbers linked to professional emails
+- **Best Domain Search** — 450M+ verified contacts across all industries
+- **81% Coverage** — The highest in the industry, proven in 5,000-lead independent tests
+
+### Why Tomba?
+
+| Feature             | Tomba              | Others        |
+| ------------------- | ------------------ | ------------- |
+| Email Coverage      | **81%**            | 30-60%        |
+| Verification        | **Real-time SMTP** | Pattern-based |
+| Phone Numbers       | **Direct dials**   | Limited       |
+| Catch-all Detection | **AI-powered**     | Basic         |
+| API Rate Limits     | **Generous**       | Restrictive   |
+
+[Get your free API key](https://app.tomba.io/auth/register) — No credit card required.
 
 ## Getting Started
 
-You'll need an Tomba API access token, which you can get by signing up for a free account at [https://app.tomba.io/auth/register](https://app.tomba.io/auth/register)
-
-The free plan is limited to 25 search request and 50 verification a month, To enable all the data fields and additional request volumes see [https://tomba.io/pricing](https://tomba.io/pricing).
+Below you will find the steps to install and start using the Tomba Rust SDK.
 
 ## Installation
 
-Add this to your package's `Cargo.toml` file:
+Add `tomba` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-tomba = "0.1"
+tomba = "1.0"
 ```
 
-## Usage
+Or install with Cargo:
 
-### Domain Search
+```bash
+cargo add tomba
+```
 
-get email addresses found on the internet.
+## Authentication
+
+Get your API key and secret by signing up for a free account at [https://app.tomba.io/auth/register](https://app.tomba.io/auth/register).
 
 ```rust
 use tomba::{Tomba, TombaConfig};
 
 let config = TombaConfig {
-   key: "ta_xxxx".to_string(),
-   secret: "ts_xxxx".to_string(),
+    key: "ta_xxxx".to_string(),
+    secret: "ts_xxxx".to_string(),
 };
+let tomba = Tomba::init(config).expect("should construct");
+```
 
-let mut tomba = Tomba::init(config).expect("should construct");
+## Quick Start
 
-let res = tomba.domain_search("tomba.io".to_string()).expect("should do domain_search ");
+```rust
+use tomba::{Tomba, TombaConfig};
 
-println!("website country {:?}", res.data.organization.location.country);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = TombaConfig {
+        key: "ta_xxxx".to_string(),
+        secret: "ts_xxxx".to_string(),
+    };
+    let tomba = Tomba::init(config)?;
+
+    // Search emails by domain
+    let result = tomba.domain_search("example.com", None, None)?;
+    println!("{}", result);
+
+    // Find a specific email
+    let result = tomba.email_finder("example.com", "John", "Doe", None)?;
+    println!("{}", result);
+
+    Ok(())
+}
+```
+
+## Services
+
+### Domain Search
+
+Search emails for a domain. Returns all email addresses found on the internet for the given domain.
+
+```rust
+let result = tomba.domain_search("example.com", None, None)?;
+println!("{}", result);
 ```
 
 ### Email Finder
 
-Find the verified email address of any professional.
+Find the most likely email address from a domain name, first name, and last name.
 
 ```rust
-use tomba::{Tomba, TombaConfig};
-
-let config = TombaConfig {
-   key: "ta_xxxx".to_string(),
-   secret: "ts_xxxx".to_string(),
-};
-
-let mut tomba = Tomba::init(config).expect("should construct");
-
-let res = tomba.email_finder("zapier.com".to_string(), "F_NAME".to_string(), "L_NAME".to_string()).expect("should do email finder");
-
-println!("Email Finder email {}", res.data.email)
+let result = tomba.email_finder("example.com", "John", "Doe", None)?;
+println!("{}", result);
 ```
 
 ### Email Verifier
 
-Verify the validity of any professional email address with the most complete email checker.
+Verify the deliverability of a given email address.
 
 ```rust
-use tomba::{Tomba, TombaConfig};
-
-let config = TombaConfig {
-   key: "ta_xxxx".to_string(),
-   secret: "ts_xxxx".to_string(),
-};
-
-let mut tomba = Tomba::init(config).expect("should construct");
-
-let res = tomba.email_verifier("b.mohamed@tomba.io".to_string()).expect("should do verify");
-
-println!("Email status {}", res.data.email.status)
+let result = tomba.email_verifier("john@example.com", None, None)?;
+println!("{}", result);
 ```
 
-## Documentation
+### Author Finder
 
-See the [official documentation](https://docs.tomba.io/introduction).
+Find the email address of the author of a blog post or article.
 
-### Other Libraries
+```rust
+let result = tomba.author_finder("https://tomba.io/blog", None)?;
+println!("{}", result);
+```
 
-There are official Tomba Email Finder client libraries available for many languages including PHP, Python, Go, Java, Ruby, and many popular frameworks such as Django, Rails and Laravel. There are also many third party libraries and integrations available for our API.
+### LinkedIn Finder
 
-[https://docs.tomba.io/libraries](https://docs.tomba.io/libraries)
+Find the email address associated with a LinkedIn profile URL.
 
-### About Tomba
+```rust
+let result = tomba.linkedin_finder(
+    "https://www.linkedin.com/in/johndoe",
+    None,
+    None,
+    None,
+)?;
+println!("{}", result);
+```
 
-Founded in 2020, Tomba prides itself on being the most reliable, accurate, and in-depth source of Email address data available anywhere. We process terabytes of data to produce our Email finder API, company.
+### Email Enrichment
 
-[![image](https://avatars.githubusercontent.com/u/67979591?s=200&v=4)](https://tomba.io/)
+Enrich a person by email address -- get job title, company, location, and social profiles.
 
-## Contribution
+```rust
+let result = tomba.email_enrichment("john@example.com", None)?;
+println!("{}", result);
+```
 
-1. Fork it (<https://github.com/tomba-io/rust/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+### Phone Finder
+
+Find a phone number using an email address.
+
+```rust
+let result = tomba.phone_finder("john@example.com", None)?;
+println!("{}", result);
+```
+
+### Phone Validator
+
+Validate a phone number and get additional information.
+
+```rust
+let result = tomba.phone_validator("+1234567890")?;
+println!("{}", result);
+```
+
+### Email Count
+
+Get the total number of email addresses Tomba has for a domain.
+
+```rust
+let result = tomba.count("example.com")?;
+println!("{}", result);
+```
+
+### Domain Status
+
+Check whether a domain is a webmail or disposable email provider.
+
+```rust
+let result = tomba.status("example.com")?;
+println!("{}", result);
+```
+
+### Domain Suggestions (Autocomplete)
+
+Auto-complete company names and retrieve logo and domain information.
+
+```rust
+let result = tomba.autocomplete("exampl")?;
+println!("{}", result);
+```
+
+### Email Sources
+
+Find the web sources where an email address has been found.
+
+```rust
+let result = tomba.email_sources("john@example.com")?;
+println!("{}", result);
+```
+
+### Email Format
+
+Detect the email format used by a company.
+
+```rust
+let result = tomba.email_format("example.com")?;
+println!("{}", result);
+```
+
+### Similar Domains
+
+Find domains similar to the given one.
+
+```rust
+let result = tomba.similar_domains("example.com")?;
+println!("{}", result);
+```
+
+### Technology Checker
+
+Check what technologies a website uses.
+
+```rust
+let result = tomba.technology_check("example.com")?;
+println!("{}", result);
+```
+
+### Location
+
+Get location details for a country code.
+
+```rust
+let result = tomba.get_location("US")?;
+println!("{}", result);
+```
+
+### Enrichment (Person / Company / Combined)
+
+Person, company, and combined enrichment APIs.
+
+```rust
+// Person enrichment
+let result = tomba.person_find("john@example.com")?;
+println!("{}", result);
+
+// Company enrichment
+let result = tomba.company_find("example.com")?;
+println!("{}", result);
+
+// Combined enrichment
+let result = tomba.combined_find("john@example.com")?;
+println!("{}", result);
+```
+
+### Reveal (Companies Search)
+
+Search for companies matching given criteria.
+
+```rust
+use serde_json::json;
+
+let body = json!({
+    "query": "technology",
+    "limit": 10
+});
+let result = tomba.companies_search(&body)?;
+println!("{}", result);
+```
+
+### Leads
+
+Manage your saved leads -- list, get, create, update, and delete.
+
+```rust
+use serde_json::json;
+
+// List leads
+let result = tomba.list_leads(None)?;
+println!("{}", result);
+
+// Get a single lead
+let result = tomba.get_lead("lead_id")?;
+println!("{}", result);
+
+// Create a lead
+let body = json!({
+    "email": "john@example.com",
+    "first_name": "John",
+    "last_name": "Doe"
+});
+let result = tomba.create_lead(&body)?;
+println!("{}", result);
+
+// Update a lead
+let body = json!({ "first_name": "Jane" });
+let result = tomba.update_lead("lead_id", &body)?;
+println!("{}", result);
+
+// Delete a lead
+let result = tomba.delete_lead("lead_id")?;
+println!("{}", result);
+```
+
+### Leads Lists
+
+Manage your leads lists -- list, get, create, update, and delete.
+
+```rust
+use serde_json::json;
+
+// List all leads lists
+let result = tomba.list_leads_lists()?;
+println!("{}", result);
+
+// Get a single leads list
+let result = tomba.get_leads_list("list_id")?;
+println!("{}", result);
+
+// Create a leads list
+let body = json!({ "name": "My List" });
+let result = tomba.create_leads_list(&body)?;
+println!("{}", result);
+
+// Update a leads list
+let body = json!({ "name": "Updated List" });
+let result = tomba.update_leads_list("list_id", &body)?;
+println!("{}", result);
+
+// Delete a leads list
+let result = tomba.delete_leads_list("list_id")?;
+println!("{}", result);
+```
+
+### Leads Attributes
+
+Manage custom lead attributes -- list, get, create, update, and delete.
+
+```rust
+use serde_json::json;
+
+// List all attributes
+let result = tomba.list_leads_attributes()?;
+println!("{}", result);
+
+// Get a single attribute
+let result = tomba.get_leads_attribute("attr_id")?;
+println!("{}", result);
+
+// Create an attribute
+let body = json!({ "name": "Company Size", "type": "string" });
+let result = tomba.create_leads_attribute(&body)?;
+println!("{}", result);
+
+// Update an attribute
+let body = json!({ "name": "Company Revenue" });
+let result = tomba.update_leads_attribute("attr_id", &body)?;
+println!("{}", result);
+
+// Delete an attribute
+let result = tomba.delete_leads_attribute("attr_id")?;
+println!("{}", result);
+```
+
+### Keys
+
+Manage your API keys.
+
+```rust
+use serde_json::json;
+
+// List all keys
+let result = tomba.list_keys()?;
+println!("{}", result);
+
+// Get a single key
+let result = tomba.get_key("key_id")?;
+println!("{}", result);
+
+// Create a key
+let body = json!({});
+let result = tomba.create_key(&body)?;
+println!("{}", result);
+
+// Reset a key
+let result = tomba.reset_key("key_id")?;
+println!("{}", result);
+
+// Delete a key
+let result = tomba.delete_key("key_id")?;
+println!("{}", result);
+```
+
+### Usage
+
+Return your monthly API request usage.
+
+```rust
+let result = tomba.usage()?;
+println!("{}", result);
+```
+
+### Logs
+
+Return the last 1,000 API requests made in the past 3 months.
+
+```rust
+let result = tomba.logs(None, None)?;
+println!("{}", result);
+```
+
+### Flag
+
+List and create email address flags.
+
+```rust
+use serde_json::json;
+
+// List flags
+let result = tomba.list_flags(None, None)?;
+println!("{}", result);
+
+// Create a flag
+let body = json!({
+    "email": "john@example.com",
+    "flag": "invalid"
+});
+let result = tomba.create_flag(&body)?;
+println!("{}", result);
+```
+
+### Bulk
+
+Manage bulk email operations -- list, get, create, launch, archive, rename, check progress, and download.
+
+```rust
+use serde_json::json;
+
+// List all bulk tasks
+let result = tomba.list_bulk()?;
+println!("{}", result);
+
+// Get a bulk task
+let result = tomba.get_bulk("bulk_id")?;
+println!("{}", result);
+
+// Create a bulk task
+let body = json!({ "name": "My Bulk Task" });
+let result = tomba.create_bulk(&body)?;
+println!("{}", result);
+
+// Launch a bulk task
+let result = tomba.launch_bulk("bulk_id")?;
+println!("{}", result);
+
+// Check bulk progress
+let result = tomba.bulk_progress("bulk_id")?;
+println!("{}", result);
+
+// Download bulk results
+let result = tomba.bulk_download("bulk_id")?;
+println!("{}", result);
+
+// Rename a bulk task
+let result = tomba.rename_bulk("bulk_id", "New Name")?;
+println!("{}", result);
+
+// Archive a bulk task
+let result = tomba.archive_bulk("bulk_id")?;
+println!("{}", result);
+
+// Delete a bulk task
+let result = tomba.delete_bulk("bulk_id")?;
+println!("{}", result);
+```
+
+## Testing
+
+```bash
+cargo test
+```
+
+## About Tomba
+
+Founded to solve the problem of unreliable email data, [Tomba.io](https://tomba.io) is the leading B2B email intelligence platform. Our AI-powered engine searches, verifies, and enriches professional contact data with unmatched accuracy.
+
+### Products
+
+- **[Email Finder](https://tomba.io/email-finder)** — Find any professional email address
+- **[Email Verifier](https://tomba.io/email-verifier)** — Verify emails in real-time
+- **[Domain Search](https://tomba.io/domain-search)** — Find all emails for a company
+- **[Phone Finder](https://tomba.io/phone-finder)** — Find direct phone numbers
+- **[Bulk Enrichment](https://tomba.io/bulks)** — Enrich contacts at scale
+- **[AI Company Search](https://tomba.io/reveal)** — Find companies with AI-powered search
+- **[CLI](https://tomba.io/cli)** — Command-line interface for Tomba
+- **[MCP Server](https://tomba.io/mcp)** — Connect AI tools (Claude, ChatGPT, Cursor) to Tomba
+- **[REST API](https://tomba.io/api)** — Full programmatic access
+
+### Browser Extensions & Add-ons
+
+- **[Chrome Extension](https://chromewebstore.google.com/detail/tomba-email-finder-email/icmjegjggphchjckknoooajmklibccjb)** — Find emails while browsing
+- **[Google Sheets Add-on](https://tomba.io/sheets)** — Enrich leads in spreadsheets
+- **[Microsoft Excel Add-in](https://tomba.io/excel)** — Email finder in Excel
+- **[Airtable Integration](https://tomba.io/airtable)** — Connect with Airtable
+
+### Integrations
+
+50+ CRM and sales tool integrations:
+[Salesforce](https://tomba.io/integrations) · [HubSpot](https://tomba.io/integrations) · [Zapier](https://tomba.io/integrations) · [Pipedrive](https://tomba.io/integrations) · [and more...](https://tomba.io/integrations)
+
+### Other Tomba SDKs
+
+| Language | Package                                                     |
+| -------- | ----------------------------------------------------------- |
+| Node.js  | [tomba](https://www.npmjs.com/package/tomba)                |
+| Python   | [tomba-io](https://pypi.org/project/tomba-io/)              |
+| PHP      | [tomba-io/php](https://packagist.org/packages/tomba-io/php) |
+| Ruby     | [tomba](https://rubygems.org/gems/tomba)                    |
+| Go       | [tomba-io/go](https://pkg.go.dev/github.com/tomba-io/go)    |
+| Rust     | [tomba](https://crates.io/crates/tomba)                     |
+| Dart     | [tomba](https://pub.dev/packages/tomba)                     |
+| Deno     | [@tomba/sdk](https://jsr.io/@tomba/sdk)                     |
+| Elixir   | [tomba](https://hex.pm/packages/tomba)                      |
+| C#       | [Tomba](https://www.nuget.org/packages/Tomba)               |
+| Perl     | [Tomba::Client](https://metacpan.org/pod/Tomba::Client)     |
+| Lua      | [tomba](https://luarocks.org/modules/tomba/tomba)           |
+| R        | [tomba](https://github.com/tomba-io/r)                      |
+
+### Resources
+
+- [Blog](https://tomba.io/blog)
+- [Help Center](https://help.tomba.io)
+- [API Documentation](https://docs.tomba.io)
+- [Pricing](https://tomba.io/pricing)
+- [Status Page](https://status.tomba.io)
+
+---
+
+**[Try Tomba Free](https://app.tomba.io/auth/register)** — Find your first email in seconds. No credit card required.
 
 ## License
 
-Please see the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html) file for more information.
+Apache 2.0 -- see [LICENSE](http://www.apache.org/licenses/LICENSE-2.0.html) for details.

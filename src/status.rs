@@ -1,29 +1,28 @@
-//   Copyright 2021 Tomba technology web service LLC
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+use std::collections::HashMap;
 
-//! Tomba Domain status data structures.
+use crate::error::TombaError;
+use crate::tomba::{Tomba, TombaResponse};
 
-use serde::{Deserialize, Serialize};
+impl Tomba {
+    /// Check whether a domain is a webmail or disposable provider.
+    ///
+    /// See <https://developer.tomba.io/#domain-status>
+    pub fn status(&self, domain: &str) -> Result<TombaResponse, TombaError> {
+        let mut params = HashMap::new();
+        params.insert("domain".into(), domain.into());
+        self.call("GET", "domain-status", &params)
+    }
 
-#[derive(Serialize, Deserialize)]
-pub struct Status {
-    #[serde(rename = "domain")]
-    pub domain: String,
-
-    #[serde(rename = "webmail")]
-    pub webmail: bool,
-
-    #[serde(rename = "disposable")]
-    pub disposable: bool,
+    /// Auto-complete company names and retrieve logo and domain
+    /// information.
+    ///
+    /// See <https://developer.tomba.io/#autocomplete>
+    pub fn autocomplete(
+        &self,
+        query: &str,
+    ) -> Result<TombaResponse, TombaError> {
+        let mut params = HashMap::new();
+        params.insert("query".into(), query.into());
+        self.call("GET", "domain-suggestions", &params)
+    }
 }
