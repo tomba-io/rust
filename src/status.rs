@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Check whether a domain is a webmail or disposable provider.
     ///
-    /// See <https://developer.tomba.io/#domain-status>
+    /// See <https://docs.tomba.io/api/domain-status>
     pub fn status(&self, domain: &str) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("domain".into(), domain.into());
@@ -16,7 +16,7 @@ impl Tomba {
     /// Auto-complete company names and retrieve logo and domain
     /// information.
     ///
-    /// See <https://developer.tomba.io/#autocomplete>
+    /// See <https://docs.tomba.io/api/domain-suggestions>
     pub fn autocomplete(
         &self,
         query: &str,

@@ -7,7 +7,7 @@ impl Tomba {
     /// Returns the total number of email addresses Tomba has for a
     /// domain.
     ///
-    /// See <https://developer.tomba.io/#email-count>
+    /// See <https://docs.tomba.io/api/finder#email-count>
     pub fn count(&self, domain: &str) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("domain".into(), domain.into());

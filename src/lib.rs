@@ -36,12 +36,12 @@
 //! | [Location](https://tomba.io/location) | `get_location` |
 //! | [Enrichment](https://tomba.io/enrichment) | `person_find`, `company_find`, `combined_find` |
 //! | [Companies Search](https://tomba.io/companies-search) | `companies_search` |
-//! | [Keys](https://developer.tomba.io/#keys) | `list_keys`, `get_key`, `create_key`, `delete_key`, `reset_key` |
-//! | [Flags](https://developer.tomba.io/#flags) | `list_flags`, `create_flag` |
-//! | [Leads](https://developer.tomba.io/#leads) | `list_leads`, `get_lead`, `create_lead`, `update_lead`, `delete_lead` |
-//! | [Leads Lists](https://developer.tomba.io/#leads-lists) | `list_leads_lists`, `get_leads_list`, `create_leads_list`, `update_leads_list`, `delete_leads_list` |
-//! | [Leads Attributes](https://developer.tomba.io/#leads-attributes) | `list_leads_attributes`, `get_leads_attribute`, `create_leads_attribute`, `update_leads_attribute`, `delete_leads_attribute` |
-//! | [Bulk](https://developer.tomba.io/#bulk) | `list_bulk`, `get_bulk`, `create_bulk`, `launch_bulk`, `delete_bulk`, `archive_bulk`, `rename_bulk`, `bulk_progress`, `bulk_download` |
+//! | [Keys](https://docs.tomba.io/api/keys) | `list_keys`, `get_key`, `create_key`, `delete_key`, `reset_key` |
+//! | [Flags](https://docs.tomba.io/api/flag) | `list_flags`, `create_flag` |
+//! | [Leads](https://docs.tomba.io/api/leads) | `list_leads`, `get_lead`, `create_lead`, `update_lead`, `delete_lead` |
+//! | [Leads Lists](https://docs.tomba.io/api/lead-lists) | `list_leads_lists`, `get_leads_list`, `create_leads_list`, `update_leads_list`, `delete_leads_list` |
+//! | [Leads Attributes](https://docs.tomba.io/api/lead-attributes) | `list_leads_attributes`, `get_leads_attribute`, `create_leads_attribute`, `update_leads_attribute`, `delete_leads_attribute` |
+//! | [Bulk](https://docs.tomba.io/api/bulks) | `list_bulk`, `get_bulk`, `create_bulk`, `launch_bulk`, `delete_bulk`, `archive_bulk`, `rename_bulk`, `bulk_progress`, `bulk_download` |
 //!
 //! ## Quick start
 //!

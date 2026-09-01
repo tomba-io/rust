@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Verify the deliverability of an email address.
     ///
-    /// See <https://developer.tomba.io/#email-verifier>
+    /// See <https://docs.tomba.io/api/verifier#email-verifier>
     pub fn email_verifier(
         &self,
         email: &str,

@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Return your monthly request usage.
     ///
-    /// See <https://developer.tomba.io/#usage>
+    /// See <https://docs.tomba.io/api/account#usage>
     pub fn usage(&self) -> Result<TombaResponse, TombaError> {
         self.call("GET", "usage", &HashMap::new())
     }

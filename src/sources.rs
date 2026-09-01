@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Find the web sources where an email address has been found.
     ///
-    /// See <https://developer.tomba.io/#email-sources>
+    /// See <https://docs.tomba.io/api/~endpoints#email-sources>
     pub fn email_sources(
         &self,
         email: &str,

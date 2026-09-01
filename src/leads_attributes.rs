@@ -8,14 +8,14 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// List all leads attributes.
     ///
-    /// See <https://developer.tomba.io/#list-all-leads-attributes>
+    /// See <https://docs.tomba.io/api/leads-attributes>
     pub fn list_leads_attributes(&self) -> Result<TombaResponse, TombaError> {
         self.call("GET", "leads_attributes", &HashMap::new())
     }
 
     /// Get a single leads attribute by ID.
     ///
-    /// See <https://developer.tomba.io/#get-a-leads-attribute>
+    /// See <https://docs.tomba.io/api/leads#get-leads-attribute>
     pub fn get_leads_attribute(
         &self,
         id: &str,
@@ -26,7 +26,7 @@ impl Tomba {
 
     /// Create a new leads attribute.
     ///
-    /// See <https://developer.tomba.io/#create-a-leads-attribute>
+    /// See <https://docs.tomba.io/api/leads#create-leads-attribute>
     pub fn create_leads_attribute(
         &self,
         body: &Value,
@@ -36,7 +36,7 @@ impl Tomba {
 
     /// Update an existing leads attribute.
     ///
-    /// See <https://developer.tomba.io/#update-a-leads-attribute>
+    /// See <https://docs.tomba.io/api/leads#update-leads-attribute>
     pub fn update_leads_attribute(
         &self,
         id: &str,
@@ -48,7 +48,7 @@ impl Tomba {
 
     /// Delete a leads attribute by ID.
     ///
-    /// See <https://developer.tomba.io/#delete-a-leads-attribute>
+    /// See <https://docs.tomba.io/api/leads#delete-leads-attribute>
     pub fn delete_leads_attribute(
         &self,
         id: &str,

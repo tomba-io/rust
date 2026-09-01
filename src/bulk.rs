@@ -32,7 +32,7 @@ fn validate_bulk_type(bulk_type: &str) -> Result<(), TombaError> {
 impl Tomba {
     /// List all bulk tasks of a given type.
     ///
-    /// See <https://developer.tomba.io/#list-all-bulk>
+    /// See <https://docs.tomba.io/api/bulks>
     pub fn list_bulk(
         &self,
         bulk_type: &str,
@@ -44,7 +44,7 @@ impl Tomba {
 
     /// Get a single bulk task by type and ID.
     ///
-    /// See <https://developer.tomba.io/#get-a-bulk>
+    /// See <https://docs.tomba.io/api/bulks#get-bulk>
     pub fn get_bulk(
         &self,
         bulk_type: &str,
@@ -57,7 +57,7 @@ impl Tomba {
 
     /// Create a new bulk task.
     ///
-    /// See <https://developer.tomba.io/#create-a-bulk>
+    /// See <https://docs.tomba.io/api/bulks#create-bulk>
     pub fn create_bulk(
         &self,
         bulk_type: &str,
@@ -70,7 +70,7 @@ impl Tomba {
 
     /// Launch a bulk task.
     ///
-    /// See <https://developer.tomba.io/#launch-a-bulk>
+    /// See <https://docs.tomba.io/api/bulks#launch-bulk>
     pub fn launch_bulk(
         &self,
         bulk_type: &str,
@@ -83,7 +83,7 @@ impl Tomba {
 
     /// Delete a bulk task.
     ///
-    /// See <https://developer.tomba.io/#delete-a-bulk>
+    /// See <https://docs.tomba.io/api/bulks#delete-bulk>
     pub fn delete_bulk(
         &self,
         bulk_type: &str,
@@ -96,7 +96,7 @@ impl Tomba {
 
     /// Archive a bulk task.
     ///
-    /// See <https://developer.tomba.io/#archive-a-bulk>
+    /// See <https://docs.tomba.io/api/bulks#archive-bulk>
     pub fn archive_bulk(
         &self,
         bulk_type: &str,
@@ -109,7 +109,7 @@ impl Tomba {
 
     /// Rename a bulk task.
     ///
-    /// See <https://developer.tomba.io/#rename-a-bulk>
+    /// See <https://docs.tomba.io/api/bulks#rename-bulk>
     pub fn rename_bulk(
         &self,
         bulk_type: &str,
@@ -123,7 +123,7 @@ impl Tomba {
 
     /// Get progress of a bulk task.
     ///
-    /// See <https://developer.tomba.io/#bulk-progress>
+    /// See <https://docs.tomba.io/api/bulks#bulk-progress>
     pub fn bulk_progress(
         &self,
         bulk_type: &str,
@@ -136,7 +136,7 @@ impl Tomba {
 
     /// Download results of a bulk task.
     ///
-    /// See <https://developer.tomba.io/#bulk-download>
+    /// See <https://docs.tomba.io/api/bulks#download-bulk>
     pub fn bulk_download(
         &self,
         bulk_type: &str,

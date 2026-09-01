@@ -9,7 +9,7 @@ impl Tomba {
     /// Returns all email addresses found on the internet for the
     /// given domain.
     ///
-    /// See <https://developer.tomba.io/#domain-search>
+    /// See <https://docs.tomba.io/api/finder#domain-search>
     pub fn domain_search(
         &self,
         domain: &str,

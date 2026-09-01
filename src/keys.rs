@@ -8,14 +8,14 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// List all API keys.
     ///
-    /// See <https://developer.tomba.io/#list-all-keys>
+    /// See <https://docs.tomba.io/api/keys>
     pub fn list_keys(&self) -> Result<TombaResponse, TombaError> {
         self.call("GET", "keys", &HashMap::new())
     }
 
     /// Get a single API key by its ID.
     ///
-    /// See <https://developer.tomba.io/#get-a-key>
+    /// See <https://docs.tomba.io/api/keys#get-key>
     pub fn get_key(&self, id: &str) -> Result<TombaResponse, TombaError> {
         let path = format!("keys/{}", id);
         self.call("GET", &path, &HashMap::new())
@@ -23,7 +23,7 @@ impl Tomba {
 
     /// Create a new API key.
     ///
-    /// See <https://developer.tomba.io/#create-a-key>
+    /// See <https://docs.tomba.io/api/keys#create-key>
     pub fn create_key(
         &self,
         body: &Value,
@@ -33,7 +33,7 @@ impl Tomba {
 
     /// Delete an API key.
     ///
-    /// See <https://developer.tomba.io/#delete-a-key>
+    /// See <https://docs.tomba.io/api/keys#delete-key>
     pub fn delete_key(&self, id: &str) -> Result<TombaResponse, TombaError> {
         let path = format!("keys/{}", id);
         self.call("DELETE", &path, &HashMap::new())
@@ -41,7 +41,7 @@ impl Tomba {
 
     /// Reset an API key.
     ///
-    /// See <https://developer.tomba.io/#reset-a-key>
+    /// See <https://docs.tomba.io/api/keys#reset-key>
     pub fn reset_key(&self, id: &str) -> Result<TombaResponse, TombaError> {
         let path = format!("keys/{}/reset", id);
         self.call_json("PUT", &path, &serde_json::json!({}))

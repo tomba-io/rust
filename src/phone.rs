@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Find a phone number using an email address.
     ///
-    /// See <https://developer.tomba.io/#phone-finder>
+    /// See <https://docs.tomba.io/api/phone#phone-finder>
     pub fn phone_finder(
         &self,
         email: &str,
@@ -22,7 +22,7 @@ impl Tomba {
 
     /// Validate a phone number.
     ///
-    /// See <https://developer.tomba.io/#phone-validator>
+    /// See <https://docs.tomba.io/api/phone#phone-validator>
     pub fn phone_validator(
         &self,
         phone: &str,

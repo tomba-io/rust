@@ -8,7 +8,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// List all flags.
     ///
-    /// See <https://developer.tomba.io/#list-all-flags>
+    /// See <https://docs.tomba.io/api/flag#list-flags>
     pub fn list_flags(
         &self,
         page: Option<u32>,
@@ -26,7 +26,7 @@ impl Tomba {
 
     /// Create a new flag.
     ///
-    /// See <https://developer.tomba.io/#create-a-flag>
+    /// See <https://docs.tomba.io/api/flag#create-flag>
     pub fn create_flag(
         &self,
         body: &Value,

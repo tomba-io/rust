@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Search for companies matching the given criteria.
     ///
-    /// See <https://developer.tomba.io/#companies-search>
+    /// See <https://docs.tomba.io/api/reveal>
     pub fn companies_search(
         &self,
         body: &Value,

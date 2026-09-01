@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Return the last 1 000 API requests made in the past 3 months.
     ///
-    /// See <https://developer.tomba.io/#logs>
+    /// See <https://docs.tomba.io/api/account#logs>
     pub fn logs(
         &self,
         page: Option<u32>,

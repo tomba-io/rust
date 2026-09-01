@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Find the most likely email address for a person at a company.
     ///
-    /// See <https://developer.tomba.io/#email-finder>
+    /// See <https://docs.tomba.io/api/finder#email-finder>
     pub fn email_finder(
         &self,
         domain: &str,
@@ -26,7 +26,7 @@ impl Tomba {
 
     /// Find the email address of the author of a blog post.
     ///
-    /// See <https://developer.tomba.io/#author-finder>
+    /// See <https://docs.tomba.io/api/finder#author-finder>
     pub fn author_finder(
         &self,
         url: &str,
@@ -42,7 +42,7 @@ impl Tomba {
 
     /// Find the email address from a LinkedIn URL.
     ///
-    /// See <https://developer.tomba.io/#linkedin-finder>
+    /// See <https://docs.tomba.io/api/finder#linkedin-finder>
     pub fn linkedin_finder(
         &self,
         url: &str,
@@ -66,7 +66,7 @@ impl Tomba {
 
     /// Enrich a person by email address.
     ///
-    /// See <https://developer.tomba.io/#email-enrichment>
+    /// See <https://docs.tomba.io/api/finder#email-enrichment>
     pub fn email_enrichment(
         &self,
         email: &str,

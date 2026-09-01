@@ -8,7 +8,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// List all saved leads.
     ///
-    /// See <https://developer.tomba.io/#list-all-leads>
+    /// See <https://docs.tomba.io/api/leads>
     pub fn list_leads(
         &self,
         domain: Option<&str>,
@@ -22,7 +22,7 @@ impl Tomba {
 
     /// Get a single lead by ID.
     ///
-    /// See <https://developer.tomba.io/#get-a-lead>
+    /// See <https://docs.tomba.io/api/leads#get-lead>
     pub fn get_lead(&self, id: &str) -> Result<TombaResponse, TombaError> {
         let path = format!("leads/{}", id);
         self.call("GET", &path, &HashMap::new())
@@ -30,7 +30,7 @@ impl Tomba {
 
     /// Create a new lead.
     ///
-    /// See <https://developer.tomba.io/#create-a-lead>
+    /// See <https://docs.tomba.io/api/leads#create-lead>
     pub fn create_lead(
         &self,
         body: &Value,
@@ -40,7 +40,7 @@ impl Tomba {
 
     /// Update an existing lead.
     ///
-    /// See <https://developer.tomba.io/#update-a-lead>
+    /// See <https://docs.tomba.io/api/leads#update-lead>
     pub fn update_lead(
         &self,
         id: &str,
@@ -52,7 +52,7 @@ impl Tomba {
 
     /// Delete a lead by ID.
     ///
-    /// See <https://developer.tomba.io/#delete-a-lead>
+    /// See <https://docs.tomba.io/api/leads#delete-lead>
     pub fn delete_lead(&self, id: &str) -> Result<TombaResponse, TombaError> {
         let path = format!("leads/{}", id);
         self.call("DELETE", &path, &HashMap::new())

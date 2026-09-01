@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Enrich a person by email address.
     ///
-    /// See <https://developer.tomba.io/#enrichment>
+    /// See <https://docs.tomba.io/api/enrichment#person>
     pub fn person_find(
         &self,
         email: &str,
@@ -18,7 +18,7 @@ impl Tomba {
 
     /// Enrich a company by domain.
     ///
-    /// See <https://developer.tomba.io/#company-enrichment>
+    /// See <https://docs.tomba.io/api/enrichment#company>
     pub fn company_find(
         &self,
         domain: &str,
@@ -30,7 +30,7 @@ impl Tomba {
 
     /// Combined person + company enrichment.
     ///
-    /// See <https://developer.tomba.io/#combined-enrichment>
+    /// See <https://docs.tomba.io/api/enrichment#combined>
     pub fn combined_find(
         &self,
         email: &str,

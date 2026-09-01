@@ -8,14 +8,14 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// List all lead lists.
     ///
-    /// See <https://developer.tomba.io/#list-all-leads-lists>
+    /// See <https://docs.tomba.io/api/leads-lists>
     pub fn list_leads_lists(&self) -> Result<TombaResponse, TombaError> {
         self.call("GET", "leads_lists", &HashMap::new())
     }
 
     /// Get a single leads list by ID.
     ///
-    /// See <https://developer.tomba.io/#get-a-leads-list>
+    /// See <https://docs.tomba.io/api/leads#get-leads-list>
     pub fn get_leads_list(
         &self,
         id: &str,
@@ -26,7 +26,7 @@ impl Tomba {
 
     /// Create a new leads list.
     ///
-    /// See <https://developer.tomba.io/#create-a-leads-list>
+    /// See <https://docs.tomba.io/api/leads#create-leads-list>
     pub fn create_leads_list(
         &self,
         body: &Value,
@@ -36,7 +36,7 @@ impl Tomba {
 
     /// Update an existing leads list.
     ///
-    /// See <https://developer.tomba.io/#update-a-leads-list>
+    /// See <https://docs.tomba.io/api/leads#update-leads-list>
     pub fn update_leads_list(
         &self,
         id: &str,
@@ -48,7 +48,7 @@ impl Tomba {
 
     /// Delete a leads list by ID.
     ///
-    /// See <https://developer.tomba.io/#delete-a-leads-list>
+    /// See <https://docs.tomba.io/api/leads#delete-leads-list>
     pub fn delete_leads_list(
         &self,
         id: &str,
