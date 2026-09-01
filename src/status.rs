@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Check whether a domain is a webmail or disposable provider.
     ///
-    /// See <https://docs.tomba.io/api/domain-status>
+    /// See <https://docs.tomba.io/api/domain#domain-status>
     pub fn status(&self, domain: &str) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("domain".into(), domain.into());
