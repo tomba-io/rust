@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Find domains similar to the given one.
     ///
-    /// See <https://docs.tomba.io/api/~endpoints#similar>
+    /// See <https://docs.tomba.io/api/domain#similar>
     pub fn similar_domains(
         &self,
         domain: &str,

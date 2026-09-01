@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Get location details for a country code.
     ///
-    /// See <https://docs.tomba.io/api/~endpoints#location>
+    /// See <https://docs.tomba.io/api/finder#location>
     pub fn get_location(
         &self,
         country: &str,

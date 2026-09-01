@@ -6,7 +6,7 @@ use crate::tomba::{Tomba, TombaResponse};
 impl Tomba {
     /// Detect the email format used by a company.
     ///
-    /// See <https://docs.tomba.io/api/~endpoints#email-format>
+    /// See <https://docs.tomba.io/api/finder#email-format>
     pub fn email_format(
         &self,
         domain: &str,
