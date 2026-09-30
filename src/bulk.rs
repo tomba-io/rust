@@ -134,16 +134,19 @@ impl Tomba {
         self.call("GET", &path, &HashMap::new())
     }
 
-    /// Download results of a bulk task.
+    /// Download results of a bulk task as CSV.
+    ///
+    /// Returns the raw CSV response body as a [`String`] instead of
+    /// parsed JSON, because the download endpoint returns CSV data.
     ///
     /// See <https://docs.tomba.io/api/bulks#download-bulk>
     pub fn bulk_download(
         &self,
         bulk_type: &str,
         id: &str,
-    ) -> Result<TombaResponse, TombaError> {
+    ) -> Result<String, TombaError> {
         validate_bulk_type(bulk_type)?;
         let path = format!("bulk/{}/{}/download", bulk_type, id);
-        self.call("GET", &path, &HashMap::new())
+        self.call_raw("GET", &path)
     }
 }

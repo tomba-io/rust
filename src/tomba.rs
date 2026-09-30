@@ -187,6 +187,62 @@ impl Tomba {
         self.handle_response(resp)
     }
 
+    /// Send a GET request and return the raw response body as a string
+    /// (no JSON parsing). Useful for endpoints that return non-JSON
+    /// content such as CSV downloads.
+    ///
+    /// * `method` -- `"GET"` or `"DELETE"`
+    /// * `path`   -- path relative to the base URL
+    pub fn call_raw(
+        &self,
+        method: &str,
+        path: &str,
+    ) -> Result<String, TombaError> {
+        let url = format!("{}{}", self.url, path);
+
+        let builder = match method {
+            "DELETE" => self.client.delete(&url),
+            _ => self.client.get(&url),
+        };
+
+        let resp = builder
+            .header("X-Tomba-Key", &self.key)
+            .header("X-Tomba-Secret", &self.secret)
+            .header("Content-Type", "application/json")
+            .header("x-Sdk-Version", SDK_VERSION)
+            .send()?;
+
+        let status = resp.status().as_u16();
+        let body = resp.text()?;
+
+        if status >= 400 {
+            let message = serde_json::from_str::<Value>(&body)
+                .ok()
+                .and_then(|v| {
+                    v.get("errors")
+                        .and_then(|e| {
+                            e.get(0)
+                                .and_then(|e0| e0.get("message"))
+                                .and_then(|m| m.as_str())
+                                .map(String::from)
+                        })
+                        .or_else(|| {
+                            v.get("message")
+                                .and_then(|m| m.as_str())
+                                .map(String::from)
+                        })
+                })
+                .unwrap_or(body);
+
+            return Err(TombaError::Api {
+                message,
+                code: status,
+            });
+        }
+
+        Ok(body)
+    }
+
     /// Interpret the HTTP response, returning the parsed JSON body
     /// along with rate-limit headers, or a [`TombaError`].
     fn handle_response(
