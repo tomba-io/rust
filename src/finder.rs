@@ -77,6 +77,6 @@ impl Tomba {
         if let Some(v) = webhook_url {
             params.insert("webhook_url".into(), v.into());
         }
-        self.call("GET", "enrichment", &params)
+        self.call("GET", "enrich", &params)
     }
 }

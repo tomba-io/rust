@@ -12,7 +12,7 @@ impl Tomba {
         country: &str,
     ) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
-        params.insert("country".into(), country.into());
+        params.insert("domain".into(), country.into());
         self.call("GET", "location", &params)
     }
 }

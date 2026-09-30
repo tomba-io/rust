@@ -13,7 +13,7 @@ impl Tomba {
     ) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("email".into(), email.into());
-        self.call("GET", "enrichment", &params)
+        self.call("GET", "people/find", &params)
     }
 
     /// Enrich a company by domain.
@@ -25,7 +25,7 @@ impl Tomba {
     ) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("domain".into(), domain.into());
-        self.call("GET", "company-enrichment", &params)
+        self.call("GET", "companies/find", &params)
     }
 
     /// Combined person + company enrichment.
@@ -37,6 +37,6 @@ impl Tomba {
     ) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("email".into(), email.into());
-        self.call("GET", "combined-enrichment", &params)
+        self.call("GET", "combined/find", &params)
     }
 }

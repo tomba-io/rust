@@ -10,7 +10,7 @@ impl Tomba {
     ///
     /// See <https://docs.tomba.io/api/leads-attributes>
     pub fn list_leads_attributes(&self) -> Result<TombaResponse, TombaError> {
-        self.call("GET", "leads_attributes", &HashMap::new())
+        self.call("GET", "attributes", &HashMap::new())
     }
 
     /// Get a single leads attribute by ID.
@@ -20,7 +20,7 @@ impl Tomba {
         &self,
         id: &str,
     ) -> Result<TombaResponse, TombaError> {
-        let path = format!("leads_attributes/{}", id);
+        let path = format!("attributes/{}", id);
         self.call("GET", &path, &HashMap::new())
     }
 
@@ -31,7 +31,7 @@ impl Tomba {
         &self,
         body: &Value,
     ) -> Result<TombaResponse, TombaError> {
-        self.call_json("POST", "leads_attributes", body)
+        self.call_json("POST", "attributes", body)
     }
 
     /// Update an existing leads attribute.
@@ -42,7 +42,7 @@ impl Tomba {
         id: &str,
         body: &Value,
     ) -> Result<TombaResponse, TombaError> {
-        let path = format!("leads_attributes/{}", id);
+        let path = format!("attributes/{}", id);
         self.call_json("PUT", &path, body)
     }
 
@@ -53,7 +53,7 @@ impl Tomba {
         &self,
         id: &str,
     ) -> Result<TombaResponse, TombaError> {
-        let path = format!("leads_attributes/{}", id);
+        let path = format!("attributes/{}", id);
         self.call("DELETE", &path, &HashMap::new())
     }
 }

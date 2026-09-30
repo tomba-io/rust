@@ -43,7 +43,7 @@ impl Tomba {
     ///
     /// See <https://docs.tomba.io/api/keys#reset-key>
     pub fn reset_key(&self, id: &str) -> Result<TombaResponse, TombaError> {
-        let path = format!("keys/{}/reset", id);
+        let path = format!("keys/{}", id);
         self.call_json("PUT", &path, &serde_json::json!({}))
     }
 }

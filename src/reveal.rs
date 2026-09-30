@@ -11,6 +11,6 @@ impl Tomba {
         &self,
         body: &Value,
     ) -> Result<TombaResponse, TombaError> {
-        self.call_json("POST", "companies-search", body)
+        self.call_json("POST", "reveal/search", body)
     }
 }

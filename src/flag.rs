@@ -21,7 +21,7 @@ impl Tomba {
         if let Some(v) = limit {
             params.insert("limit".into(), v.to_string());
         }
-        self.call("GET", "flags", &params)
+        self.call("GET", "flag", &params)
     }
 
     /// Create a new flag.
@@ -31,6 +31,6 @@ impl Tomba {
         &self,
         body: &Value,
     ) -> Result<TombaResponse, TombaError> {
-        self.call_json("POST", "flags", body)
+        self.call_json("POST", "flag", body)
     }
 }

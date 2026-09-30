@@ -13,6 +13,6 @@ impl Tomba {
     ) -> Result<TombaResponse, TombaError> {
         let mut params = HashMap::new();
         params.insert("domain".into(), domain.into());
-        self.call("GET", "technology-checker", &params)
+        self.call("GET", "technology", &params)
     }
 }
