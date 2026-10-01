@@ -21,7 +21,7 @@ use serde_json::Value;
 use crate::error::TombaError;
 use crate::DEFAULT_BASE_URL;
 
-const SDK_VERSION: &str = "tomba:rust:v1.0.0";
+const SDK_VERSION: &str = "tomba:rust:v1.1.1";
 
 /// Rate-limit information extracted from response headers.
 #[derive(Debug, Clone, Serialize, Deserialize)]
